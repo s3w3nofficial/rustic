@@ -1,12 +1,14 @@
 //use crate::listener::{Listener};
 
-use async_std::io;
-use http_types::{Response, StatusCode};
+use std::sync::Arc;
 
-use crate::listener::{Listener, to_listener::ToListener};
+use async_std::io;
+
+use crate::{listener::{Listener, to_listener::ToListener}, route::Route, router::{Router, Selection}, request::Request, middleware::{Next, Middleware}};
 
 pub struct Server {
-
+    router: Arc<Router>,
+    middleware: Arc<Vec<Arc<dyn Middleware>>>,
 }
 
 impl Server {
@@ -14,7 +16,9 @@ impl Server {
     #[must_use]
     pub fn new() -> Self {
         Self {
-
+            router: Arc::new(Router::new()),
+            middleware: Arc::new(vec![
+            ]),
         }
     }
 
@@ -25,14 +29,35 @@ impl Server {
         Ok(())
     }
 
-    pub async fn respond<Req, Res>(&self, _req: Req) -> http_types::Result<Res>
+    pub fn at<'a>(&'a mut self, path: &str) -> Route<'a> {
+        let router = Arc::get_mut(&mut self.router)
+            .expect("Registering routes is not possible after the Server has started");
+        Route::new(router, path.to_owned())
+    }
+
+    pub async fn respond<Req, Res>(&self, req: Req) -> http_types::Result<Res>
     where
         Req: Into<http_types::Request>,
         Res: From<http_types::Response>,
     {
-        let mut res = Response::new(StatusCode::Ok);
-        res.set_body("Hello, World!");
+        let req = req.into();
+        let Self {
+            router,
+            middleware,
+        } = self.clone();
 
+        let method = req.method().to_owned();
+        let Selection { endpoint, params } = router.route(req.url().path(), method);
+        let route_params = vec![params];
+        let req = Request::new(req, route_params);
+
+        let next = Next {
+            endpoint,
+            next_middleware: &middleware,
+        };
+
+        let res = next.run(req).await;
+        let res: http_types::Response = res.into();
         Ok(res.into())
     }
 }
@@ -40,7 +65,8 @@ impl Server {
 impl Clone for Server {
     fn clone(&self) -> Self {
         Self {
-
+            router: self.router.clone(),
+            middleware: self.middleware.clone(),
         }
     }
 }

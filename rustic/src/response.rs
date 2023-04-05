@@ -1,4 +1,4 @@
-use http_types::{Error, Body, StatusCode};
+use http_types::{Error, Body, StatusCode, convert::Serialize};
 use std::fmt::{Debug};
 
 pub struct Response {

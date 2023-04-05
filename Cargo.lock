@@ -532,6 +532,7 @@ version = "0.1.0"
 dependencies = [
  "async-std",
  "rustic",
+ "serde",
 ]
 
 [[package]]
@@ -891,6 +892,8 @@ dependencies = [
  "kv-log-macro",
  "log",
  "routefinder",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

@@ -15,4 +15,9 @@ impl Request {
             route_params,
         }
     }
+
+    pub async fn body_json<T: serde::de::DeserializeOwned>(&mut self) -> crate::Result<T> {
+        let res = self.req.body_json().await?;
+        Ok(res)
+    }
 }

@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 rustic = { path = "../../rustic" }
 async-std = { version = "1.12.0", features = ["attributes"] }
+serde = "1.0.117"

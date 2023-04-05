@@ -48,4 +48,9 @@ impl <'a> Route<'a> {
         self.method(http_types::Method::Get, ep);
         self
     }
+
+    pub fn post(&mut self, ep: impl Endpoint) -> &mut Self {
+        self.method(http_types::Method::Post, ep);
+        self
+    }
 }

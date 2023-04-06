@@ -324,6 +324,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cookies"
+version = "0.1.0"
+dependencies = [
+ "async-std",
+ "rustic",
+ "serde",
+]
+
+[[package]]
 name = "cpufeatures"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -1,10 +1,8 @@
-//use crate::listener::{Listener};
-
 use std::sync::Arc;
 
 use async_std::io;
 
-use crate::{listener::{Listener, to_listener::ToListener}, route::Route, router::{Router, Selection}, request::Request, middleware::{Next, Middleware}};
+use crate::{listeners::{Listener, to_listener::ToListener}, route::Route, router::{Router, Selection}, request::Request, middleware::{Next, Middleware}, middlewares};
 
 pub struct Server {
     router: Arc<Router>,
@@ -18,6 +16,7 @@ impl Server {
         Self {
             router: Arc::new(Router::new()),
             middleware: Arc::new(vec![
+                Arc::new(middlewares::CookieMiddleware::new())
             ]),
         }
     }

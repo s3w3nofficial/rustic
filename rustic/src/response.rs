@@ -1,9 +1,21 @@
-use http_types::{Error, Body, StatusCode, convert::Serialize};
+use http_types::{
+    Error, 
+    Body, 
+    StatusCode, 
+    Cookie, 
+    headers::{HeaderName, ToHeaderValues}
+};
 use std::fmt::{Debug};
+
+pub(crate) enum CookieEvent {
+    Added(Cookie<'static>),
+    Removed(Cookie<'static>),
+}
 
 pub struct Response {
     pub(crate) res: http_types::Response,
     pub(crate) error: Option<Error>,
+    pub(crate) cookie_events: Vec<CookieEvent>,
 }
 
 impl Response {
@@ -17,11 +29,24 @@ impl Response {
         Self {
             res,
             error: None,
+            cookie_events: vec![],
         }
+    }
+
+    pub fn append_header(&mut self, key: impl Into<HeaderName>, value: impl ToHeaderValues) {
+        self.res.append_header(key, value);
     }
 
     pub fn set_body(&mut self, body: impl Into<Body>) {
         self.res.set_body(body);
+    }
+
+    pub fn insert_cookie(&mut self, cookie: Cookie<'static>) {
+        self.cookie_events.push(CookieEvent::Added(cookie));
+    }
+
+    pub fn remove_cookie(&mut self, cookie: Cookie<'static>) {
+        self.cookie_events.push(CookieEvent::Removed(cookie));
     }
 }
 
@@ -44,6 +69,7 @@ impl From<Error> for Response {
         Self {
             res: http_types::Response::new(err.status()),
             error: Some(err),
+            cookie_events: vec![],
         }
     }
 }
@@ -53,6 +79,7 @@ impl From<http_types::Response> for Response {
         Self {
             res,
             error: None,
+            cookie_events: vec![],
         }
     }
 }

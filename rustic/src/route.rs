@@ -53,4 +53,14 @@ impl <'a> Route<'a> {
         self.method(http_types::Method::Post, ep);
         self
     }
+
+    pub fn put(&mut self, ep: impl Endpoint) -> &mut Self {
+        self.method(http_types::Method::Put, ep);
+        self
+    }
+
+    pub fn delete(&mut self, ep: impl Endpoint) -> &mut Self {
+        self.method(http_types::Method::Delete, ep);
+        self
+    }
 }

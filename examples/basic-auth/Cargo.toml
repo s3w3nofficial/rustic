@@ -1,5 +1,5 @@
 [package]
-name = "cookies"
+name = "basic-auth"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 rustic = { path = "../../rustic" }
 async-std = { version = "1.12.0", features = ["attributes"] }
+kv-log-macro = "1.0.7"
 femme = "2.1.1"

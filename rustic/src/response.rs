@@ -33,6 +33,10 @@ impl Response {
         }
     }
 
+    pub fn insert_header(&mut self, key: impl Into<HeaderName>, value: impl ToHeaderValues) {
+        self.res.insert_header(key, value);
+    }
+
     pub fn append_header(&mut self, key: impl Into<HeaderName>, value: impl ToHeaderValues) {
         self.res.append_header(key, value);
     }

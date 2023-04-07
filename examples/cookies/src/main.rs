@@ -18,6 +18,8 @@ async fn remove_cookie(_req: Request) -> rustic::Result {
 
 #[async_std::main]
 async fn main() -> Result<(), std::io::Error> {
+    femme::start();
+
     let mut app = rustic::new();
 
     app.at("/").get(retrieve_cookie);

@@ -12,6 +12,7 @@ mod middlewares;
 
 pub use endpoint::Endpoint;
 pub use middleware::{Middleware, Next};
+pub use middlewares::{AuthMiddleware, BasicAuthScheme, BearerAuthScheme};
 pub use request::Request;
 pub use response::Response;
 pub use route::Route;

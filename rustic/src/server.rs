@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use async_std::io;
+use kv_log_macro::info;
 
 use crate::{listeners::{Listener, to_listener::ToListener}, route::Route, router::{Router, Selection}, request::Request, middleware::{Next, Middleware}, middlewares};
 
@@ -32,6 +33,17 @@ impl Server {
         let router = Arc::get_mut(&mut self.router)
             .expect("Registering routes is not possible after the Server has started");
         Route::new(router, path.to_owned())
+    }
+
+    pub fn with<M>(&mut self, middleware: M) -> &mut Self
+    where
+        M: Middleware,
+    {
+        info!("Adding middleware {}", middleware.name());
+        let m = Arc::get_mut(&mut self.middleware)
+            .expect("Registering middleware is not possible after the Server has started");
+        m.push(Arc::new(middleware));
+        self
     }
 
     pub async fn respond<Req, Res>(&self, req: Req) -> http_types::Result<Res>

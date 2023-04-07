@@ -1,5 +1,5 @@
 [package]
-name = "cookies"
+name = "custom-middleware"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 rustic = { path = "../../rustic" }
 async-std = { version = "1.12.0", features = ["attributes"] }
+async-trait = "0.1.41"
 femme = "2.1.1"

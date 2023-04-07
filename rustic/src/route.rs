@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use kv_log_macro::info;
+
 use crate::{router::Router, endpoint::{Endpoint, MiddlewareEndpoint}, middleware::Middleware};
 
 pub struct Route<'a> {
@@ -61,6 +63,19 @@ impl <'a> Route<'a> {
 
     pub fn delete(&mut self, ep: impl Endpoint) -> &mut Self {
         self.method(http_types::Method::Delete, ep);
+        self
+    }
+
+    pub fn with<M>(&mut self, middleware: M) -> &mut Self
+    where
+        M: Middleware,
+    {
+        info!(
+            "Adding middleware {} to route {:?}",
+            middleware.name(),
+            self.path
+        );
+        self.middleware.push(Arc::new(middleware));
         self
     }
 }

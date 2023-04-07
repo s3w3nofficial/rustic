@@ -8,6 +8,8 @@ struct Cat {
 
 #[async_std::main]
 async fn main() -> Result<(), std::io::Error> {
+    femme::start();
+
     let mut app = rustic::new();
 
     app.at("/").get(|_| async { Ok("Hello, world!") });

@@ -4,7 +4,7 @@ use http_types::{Result, StatusCode};
 use async_trait::async_trait;
 use kv_log_macro::{info, error};
 
-use crate::{Middleware, Request, Next, Response};
+use crate::{Middleware, Request, Next, Response, Server};
 
 pub struct AuthMiddleware<ImplScheme: Scheme> {
     pub(crate) scheme: ImplScheme,
@@ -15,6 +15,25 @@ impl<ImplScheme: Scheme> AuthMiddleware<ImplScheme> {
         Self {
             scheme
         }
+    }
+}
+
+pub trait HttpAuth {
+    fn with_basic_auth(&mut self, verify_password: fn(username: &str, password: &str) -> bool) -> &mut Self;
+
+    fn with_token_auth(&mut self, verify_token: fn (token: &str) -> bool) -> &mut Self;
+}
+
+impl HttpAuth for Server {
+
+    fn with_basic_auth(&mut self, verify_password: fn(username: &str, password: &str) -> bool) -> &mut Self {
+        self.with(AuthMiddleware::new(BasicAuthScheme::new(verify_password)));
+        self
+    }
+
+    fn with_token_auth(&mut self, verify_token: fn (token: &str) -> bool) -> &mut Self {
+        self.with(AuthMiddleware::new(BearerAuthScheme::new(verify_token)));
+        self
     }
 }
 
@@ -148,9 +167,6 @@ impl Scheme for BasicAuthScheme {
 
         let (username, password) = (parts[0], parts[1]);
 
-        info!("username: {}", username);
-        info!("password: {}", password);
-
         if (self.verify_password)(username, password) {
             return Ok(Some(true));
         }
@@ -187,9 +203,45 @@ pub struct BearerAuthRequest {
 impl Scheme for BearerAuthScheme {
     type Request = BearerAuthRequest;
 
-    async fn authenticate(&self, _auth_param: &str) -> Result<Option<bool>> {
-        _ = (self.verify_token)("");
-        Ok(Some(true))
+    async fn authenticate(&self, auth_param: &str) -> Result<Option<bool>> {
+        let bytes = base64::decode(auth_param);
+        if bytes.is_err() {
+            // This is invalid. Fail the request.
+            return Err(http_types::Error::from_str(
+                StatusCode::Unauthorized,
+                "Basic auth param must be valid base64.",
+            ));
+        }
+
+        let as_utf8 = String::from_utf8(bytes.unwrap());
+        if as_utf8.is_err() {
+            // You know the drill.
+            return Err(http_types::Error::from_str(
+                StatusCode::Unauthorized,
+                "Basic auth param base64 must contain valid utf-8.",
+            ));
+        }
+
+        let as_utf8 = as_utf8.unwrap();
+        let parts: Vec<_> = as_utf8.split(':').collect();
+
+        if parts.len() < 1 {
+            return Err(http_types::Error::from_str(
+                StatusCode::Unauthorized, 
+                "Bearer auth must contain token"
+            ));
+        }
+
+        let token = parts[0];
+
+        if (self.verify_token)(token) {
+            return Ok(Some(true));
+        }
+
+        return Err(http_types::Error::from_str(
+            StatusCode::Unauthorized, 
+            "token is expired or invalid"
+        ));
     }
 
     fn scheme_name() -> &'static str {

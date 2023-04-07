@@ -1,4 +1,4 @@
-use rustic::{AuthMiddleware, BearerAuthScheme};
+use rustic::HttpAuth;
 
 fn verify_token(_token: &str) -> bool {
     true
@@ -10,7 +10,7 @@ async fn main() -> Result<(), std::io::Error> {
 
     let mut app = rustic::new();
 
-    app.with(AuthMiddleware::new(BearerAuthScheme::new(verify_token)));
+    app.with_token_auth(verify_token);
 
     app.at("/").get(|_| async { Ok("Hello, world!") });
 

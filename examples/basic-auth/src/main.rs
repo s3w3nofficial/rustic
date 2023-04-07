@@ -1,4 +1,4 @@
-use rustic::{AuthMiddleware, BasicAuthScheme};
+use rustic::HttpAuth;
 
 fn verify_password(username: &str, password: &str) -> bool {
     if username == "user" && password == "pass" {
@@ -14,9 +14,7 @@ async fn main() -> Result<(), std::io::Error> {
 
     let mut app = rustic::new();
 
-    app.with(AuthMiddleware::new(BasicAuthScheme::new(verify_password)));
-
-    //app.with_basic_auth(verify_password);
+    app.with_basic_auth(verify_password);
 
     app.at("/").get(|_| async { Ok("Hello, world!") });
 

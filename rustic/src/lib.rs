@@ -9,6 +9,7 @@ mod response;
 mod middleware;
 mod route;
 mod middlewares;
+mod fs;
 
 pub use endpoint::Endpoint;
 pub use middleware::{Middleware, Next};

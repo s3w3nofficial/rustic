@@ -1,4 +1,4 @@
-use http_types::Cookie;
+use http_types::{Cookie, Url};
 use routefinder::Captures;
 
 use crate::middlewares::CookieData;
@@ -37,6 +37,10 @@ impl Request {
     pub async fn body_json<T: serde::de::DeserializeOwned>(&mut self) -> crate::Result<T> {
         let res = self.req.body_json().await?;
         Ok(res)
+    }
+
+    pub fn url(&self) -> &Url {
+        self.req.url()
     }
 
     #[must_use]

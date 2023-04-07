@@ -1,8 +1,8 @@
-use std::sync::Arc;
+use std::{sync::Arc, path::Path, io};
 
 use kv_log_macro::info;
 
-use crate::{router::Router, endpoint::{Endpoint, MiddlewareEndpoint}, middleware::Middleware};
+use crate::{router::Router, endpoint::{Endpoint, MiddlewareEndpoint}, middleware::Middleware, fs::{ServeDir, ServeFile}};
 
 pub struct Route<'a> {
     router: &'a mut Router,
@@ -35,6 +35,22 @@ impl <'a> Route<'a> {
             path: p,
             middleware: self.middleware.clone(),
         }
+    }
+
+    pub fn path(&self) -> &str {
+        &self.path
+    }
+
+    pub fn serve_dir(&mut self, dir: impl AsRef<Path>) -> io::Result<()> {
+        let dir = dir.as_ref().to_owned().canonicalize()?;
+        let prefix = self.path().to_string();
+        self.get(ServeDir::new(prefix, dir));
+        Ok(())
+    }
+
+    pub fn serve_file(&mut self, file: impl AsRef<Path>) -> io::Result<()> {
+        self.get(ServeFile::init(file)?);
+        Ok(())
     }
 
     pub fn method(&mut self, method: http_types::Method, ep: impl Endpoint) -> &mut Self {

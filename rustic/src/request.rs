@@ -1,4 +1,4 @@
-use http_types::{Cookie, Url};
+use http_types::{Cookie, Url, Method};
 use routefinder::Captures;
 
 use crate::middlewares::CookieData;
@@ -41,6 +41,11 @@ impl Request {
 
     pub fn url(&self) -> &Url {
         self.req.url()
+    }
+
+    #[must_use]
+    pub fn method(&self) -> Method {
+        self.req.method()
     }
 
     #[must_use]

@@ -13,7 +13,15 @@ mod fs;
 
 pub use endpoint::Endpoint;
 pub use middleware::{Middleware, Next};
-pub use middlewares::{AuthMiddleware, BasicAuthScheme, BearerAuthScheme, HttpAuth};
+pub use middlewares::{
+    Origin,
+    AuthMiddleware, 
+    CorsMiddleware, 
+    BasicAuthScheme, 
+    BearerAuthScheme, 
+    WithHttpAuth, 
+    WithCors
+};
 pub use request::Request;
 pub use response::Response;
 pub use route::Route;

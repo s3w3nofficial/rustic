@@ -1,4 +1,4 @@
-use rustic::HttpAuth;
+use rustic::WithHttpAuth;
 
 fn verify_token(_token: &str) -> bool {
     true

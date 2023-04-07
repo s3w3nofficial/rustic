@@ -1,4 +1,4 @@
-use rustic::HttpAuth;
+use rustic::WithHttpAuth;
 
 fn verify_password(username: &str, password: &str) -> bool {
     if username == "user" && password == "pass" {

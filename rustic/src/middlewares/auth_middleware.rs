@@ -18,13 +18,13 @@ impl<ImplScheme: Scheme> AuthMiddleware<ImplScheme> {
     }
 }
 
-pub trait HttpAuth {
+pub trait WithHttpAuth {
     fn with_basic_auth(&mut self, verify_password: fn(username: &str, password: &str) -> bool) -> &mut Self;
 
     fn with_token_auth(&mut self, verify_token: fn (token: &str) -> bool) -> &mut Self;
 }
 
-impl HttpAuth for Server {
+impl WithHttpAuth for Server {
 
     fn with_basic_auth(&mut self, verify_password: fn(username: &str, password: &str) -> bool) -> &mut Self {
         self.with(AuthMiddleware::new(BasicAuthScheme::new(verify_password)));

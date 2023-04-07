@@ -6,7 +6,7 @@ use http_types::{cookies::{CookieJar, Delta}, Cookie, headers};
 use crate::{Middleware, Request, Next, response::CookieEvent};
 
 #[derive(Default)]
-pub(crate) struct CookieMiddleware;
+pub struct CookieMiddleware;
 
 impl CookieMiddleware {
 
@@ -53,7 +53,7 @@ impl Middleware for CookieMiddleware {
     }
 }
 
-pub(crate) struct CookieData {
+pub struct CookieData {
     pub(crate) content: Arc<RwLock<LazyJar>>,
 }
 

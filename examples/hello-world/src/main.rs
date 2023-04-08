@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use rustic::{Body, Request, Error};
+use rustic::{Body, Request, Error, WithLogging};
 
 #[derive(Deserialize, Serialize)]
 struct Cat {
@@ -11,6 +11,8 @@ async fn main() -> Result<(), std::io::Error> {
     femme::start();
 
     let mut app = rustic::new();
+
+    app.with_logging();
 
     app.at("/").get(|_| async { Ok("Hello, world!") });
     app.at("/submit").post(submit);

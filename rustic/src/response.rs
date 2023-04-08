@@ -52,6 +52,14 @@ impl Response {
     pub fn remove_cookie(&mut self, cookie: Cookie<'static>) {
         self.cookie_events.push(CookieEvent::Removed(cookie));
     }
+
+    pub fn error(&self) -> Option<&Error> {
+        self.error.as_ref()
+    }
+
+    pub fn status(&self) -> crate::StatusCode {
+        self.res.status()
+    }
 }
 
 impl From<Response> for http_types::Response {

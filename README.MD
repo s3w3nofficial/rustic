@@ -6,10 +6,10 @@
 - serving of files and directories
 - basic auth and bearer token auth
 - custom middleware support
-
-### TODO
 - cors middleware
 - logging middleware
+
+### TODO
 - session support
 - swagger support (utopia)
 - cache middleware

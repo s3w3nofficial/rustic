@@ -21,6 +21,7 @@ pub use middlewares::{
     BearerAuthScheme, 
     WithHttpAuth, 
     WithCors,
+    WithLogging
 };
 pub use request::Request;
 pub use response::Response;

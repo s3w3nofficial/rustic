@@ -40,8 +40,7 @@ fn handle_tcp(app: Server, stream: TcpStream) {
 }
 
 #[async_trait::async_trait]
-impl Listener for TcpListener
-{
+impl Listener for TcpListener {
     async fn bind(&mut self, server: Server) -> io::Result<()> {
 
         self.server = Some(server);

@@ -1,4 +1,4 @@
-use rustic::{CorsMiddleware, Origin};
+use rustic::{Origin, WithCors};
 
 #[async_std::main]
 async fn main() -> Result<(), std::io::Error> {
@@ -6,13 +6,12 @@ async fn main() -> Result<(), std::io::Error> {
 
     let mut app = rustic::new();
 
-    let allow_origin = String::from("http://localhost:8000");
+    app.with_cors(|cors| {
+        cors
+            .allow_credentials(true)
+            .allow_origin(Origin::from("http://localhost:8000"))
+    });
 
-    let cors = CorsMiddleware::new()
-        .allow_credentials(true)
-        .allow_origin(Origin::Exact(allow_origin));
-
-    app.with(cors);
 
     app.at("/").get(|_| async { Ok("Hello, world!") });
 

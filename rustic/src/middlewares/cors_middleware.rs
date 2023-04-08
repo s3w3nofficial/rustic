@@ -241,13 +241,15 @@ impl Hash for Origin {
 }
 
 pub trait WithCors {
-    fn with_cors(&mut self) -> &mut Self;
+    fn with_cors(&mut self, configure: impl Fn(CorsMiddleware) -> CorsMiddleware) -> &mut Self;
 }
 
 impl WithCors for Server {
 
-    fn with_cors(&mut self) -> &mut Self {
-        self.with(CorsMiddleware::new());
+    fn with_cors(&mut self, configure: impl Fn(CorsMiddleware) -> CorsMiddleware) -> &mut Self {
+        let cors = CorsMiddleware::new();
+
+        self.with((configure)(cors));
         self
     }
 }

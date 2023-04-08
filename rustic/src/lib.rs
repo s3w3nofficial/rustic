@@ -20,7 +20,7 @@ pub use middlewares::{
     BasicAuthScheme, 
     BearerAuthScheme, 
     WithHttpAuth, 
-    WithCors
+    WithCors,
 };
 pub use request::Request;
 pub use response::Response;

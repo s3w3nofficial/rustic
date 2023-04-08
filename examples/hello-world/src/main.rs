@@ -15,6 +15,10 @@ async fn main() -> Result<(), std::io::Error> {
     app.with_logging();
 
     app.at("/").get(|_| async { Ok("Hello, world!") });
+    app.at("/posts/:id").get(|req: Request| async move { 
+        let post_id = req.param("id")?.parse().unwrap_or(0);
+        Ok(format!("post id: {}", post_id))
+    });
     app.at("/submit").post(submit);
 
     app.listen("127.0.0.1:8080").await?;

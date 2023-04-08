@@ -32,17 +32,12 @@ pub(crate) struct MiddlewareEndpoint<E> {
     middleware: Vec<Arc<dyn Middleware>>,
 }
 
-#[async_trait]
-impl<E> Endpoint for MiddlewareEndpoint<E>
-where
-    E: Endpoint,
-{
-    async fn call(&self, req: Request) -> crate::Result {
-        let next = Next {
-            endpoint: &self.endpoint,
-            next_middleware: &self.middleware,
-        };
-        Ok(next.run(req).await)
+impl<E: Clone> Clone for MiddlewareEndpoint<E> {
+    fn clone(&self) -> Self {
+        Self {
+            endpoint: self.endpoint.clone(),
+            middleware: self.middleware.clone(),
+        }
     }
 }
 
@@ -62,6 +57,20 @@ where
                 middleware: middleware.to_vec(),
             })
         }
+    }
+}
+
+#[async_trait]
+impl<E> Endpoint for MiddlewareEndpoint<E>
+where
+    E: Endpoint,
+{
+    async fn call(&self, req: Request) -> crate::Result {
+        let next = Next {
+            endpoint: &self.endpoint,
+            next_middleware: &self.middleware,
+        };
+        Ok(next.run(req).await)
     }
 }
 

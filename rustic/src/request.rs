@@ -1,4 +1,4 @@
-use http_types::{Cookie, Url, Method};
+use http_types::{Cookie, Url, Method, format_err};
 use routefinder::Captures;
 
 use crate::middlewares::CookieData;
@@ -46,6 +46,14 @@ impl Request {
     #[must_use]
     pub fn method(&self) -> Method {
         self.req.method()
+    }
+
+    pub fn param(&self, key: &str) -> crate::Result<&str> {
+        self.route_params
+            .iter()
+            .rev()
+            .find_map(|captures| captures.get(key))
+            .ok_or_else(|| format_err!("Param \"{}\" not found", key.to_string()))
     }
 
     #[must_use]

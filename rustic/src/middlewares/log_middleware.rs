@@ -1,27 +1,19 @@
 use async_trait::async_trait;
-use kv_log_macro::{info, warn, error};
+use kv_log_macro::{error, info, warn};
 
-use crate::{Middleware, Request, Next, Server};
+use crate::{Middleware, Next, Request, Server};
 
-
-pub struct LogMiddleware {
-
-}
+pub struct LogMiddleware {}
 
 impl LogMiddleware {
-
     fn new() -> Self {
-        Self {
-
-        }
+        Self {}
     }
 }
 
 #[async_trait]
 impl Middleware for LogMiddleware {
-
     async fn handle(&self, request: Request, next: Next<'_>) -> crate::Result {
-
         let path = request.url().path().to_owned();
         let method = request.method().to_string();
         info!("<-- Request received", {
@@ -84,7 +76,6 @@ pub trait WithLogging {
 }
 
 impl WithLogging for Server {
-
     fn with_logging(&mut self) -> &mut Self {
         self.with(LogMiddleware::new());
         self

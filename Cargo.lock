@@ -1612,6 +1612,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustic-sqlx"
+version = "0.1.0"
+dependencies = [
+ "rustic",
+]
+
+[[package]]
 name = "rustic-swagger"
 version = "0.1.0"
 dependencies = [
@@ -2091,6 +2098,7 @@ dependencies = [
  "femme",
  "http-types",
  "rustic",
+ "rustic-sqlx",
  "rustic-swagger",
  "serde",
  "serde_json",

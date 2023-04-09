@@ -1,5 +1,5 @@
 use http_types::StatusCode;
-use routefinder::{Router as MethodRouter, Captures};
+use routefinder::{Captures, Router as MethodRouter};
 use std::collections::HashMap;
 
 use crate::{endpoint::DynEndpoint, request::Request, response::Response};
@@ -22,12 +22,7 @@ impl Router {
         }
     }
 
-    pub(crate) fn add(
-        &mut self,
-        path: &str,
-        method: http_types::Method,
-        ep: Box<DynEndpoint>,
-    ) {
+    pub(crate) fn add(&mut self, path: &str, method: http_types::Method, ep: Box<DynEndpoint>) {
         self.method_map
             .entry(method)
             .or_insert_with(MethodRouter::new)
@@ -76,14 +71,10 @@ impl Router {
     }
 }
 
-async fn not_found_endpoint(
-    _req: Request,
-) -> crate::Result {
+async fn not_found_endpoint(_req: Request) -> crate::Result {
     Ok(Response::new(StatusCode::NotFound))
 }
 
-async fn method_not_allowed(
-    _req: Request,
-) -> crate::Result {
+async fn method_not_allowed(_req: Request) -> crate::Result {
     Ok(Response::new(StatusCode::MethodNotAllowed))
 }

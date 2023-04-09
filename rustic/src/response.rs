@@ -1,11 +1,8 @@
 use http_types::{
-    Error, 
-    Body, 
-    StatusCode, 
-    Cookie, 
-    headers::{HeaderName, ToHeaderValues}, Mime
+    headers::{HeaderName, ToHeaderValues},
+    Body, Cookie, Error, Mime, StatusCode,
 };
-use std::fmt::{Debug};
+use std::fmt::Debug;
 
 pub(crate) enum CookieEvent {
     Added(Cookie<'static>),

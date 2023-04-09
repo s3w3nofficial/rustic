@@ -1,9 +1,12 @@
 use async_trait::async_trait;
-use http_types::{headers::{HeaderValue, HeaderValues, self}, StatusCode, Method};
+use http_types::{
+    headers::{self, HeaderValue, HeaderValues},
+    Method, StatusCode,
+};
 use regex::Regex;
 use std::hash::Hash;
 
-use crate::{Middleware, Request, Next, Server};
+use crate::{Middleware, Next, Request, Server};
 
 #[derive(Clone, Hash)]
 pub struct CorsMiddleware {
@@ -20,7 +23,6 @@ pub(crate) const DEFAULT_METHODS: &str = "GET, POST, OPTIONS";
 pub(crate) const WILDCARD: &str = "*";
 
 impl CorsMiddleware {
-
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -117,7 +119,6 @@ impl CorsMiddleware {
 
 #[async_trait]
 impl Middleware for CorsMiddleware {
-
     async fn handle(&self, request: Request, next: Next<'_>) -> crate::Result {
         let origins = request.header(&headers::ORIGIN).cloned();
 
@@ -245,7 +246,6 @@ pub trait WithCors {
 }
 
 impl WithCors for Server {
-
     fn with_cors(&mut self, configure: impl Fn(CorsMiddleware) -> CorsMiddleware) -> &mut Self {
         let cors = CorsMiddleware::new();
 

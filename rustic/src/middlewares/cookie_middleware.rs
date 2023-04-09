@@ -1,15 +1,17 @@
 use std::sync::{Arc, RwLock};
 
 use async_trait::async_trait;
-use http_types::{cookies::{CookieJar, Delta}, Cookie, headers};
+use http_types::{
+    cookies::{CookieJar, Delta},
+    headers, Cookie,
+};
 
-use crate::{Middleware, Request, Next, response::CookieEvent};
+use crate::{response::CookieEvent, Middleware, Next, Request};
 
 #[derive(Default)]
 pub struct CookieMiddleware;
 
 impl CookieMiddleware {
-
     pub(crate) fn new() -> Self {
         Self::default()
     }
@@ -17,9 +19,7 @@ impl CookieMiddleware {
 
 #[async_trait]
 impl Middleware for CookieMiddleware {
-
     async fn handle(&self, mut request: Request, next: Next<'_>) -> crate::Result {
-
         let cookie_jar = if let Some(cookie_data) = request.ext::<CookieData>() {
             cookie_data.content.clone()
         } else {

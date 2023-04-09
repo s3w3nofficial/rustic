@@ -1,10 +1,14 @@
-use std::{path::{PathBuf, Path}, ffi::OsStr, io};
 use async_std::path::PathBuf as AsyncPathBuf;
 use async_trait::async_trait;
-use http_types::{StatusCode, Body};
+use http_types::{Body, StatusCode};
 use kv_log_macro::{info, warn};
+use std::{
+    ffi::OsStr,
+    io,
+    path::{Path, PathBuf},
+};
 
-use crate::{Request, Endpoint, Response};
+use crate::{Endpoint, Request, Response};
 
 pub(crate) struct ServeDir {
     prefix: String,
@@ -47,7 +51,7 @@ impl Endpoint for ServeDir {
                 Ok(body) => {
                     let mut res = Response::new(StatusCode::Ok);
                     res.set_body(body);
-                    
+
                     Ok(res)
                 }
                 Err(e) if e.kind() == io::ErrorKind::NotFound => {

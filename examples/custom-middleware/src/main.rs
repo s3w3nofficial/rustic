@@ -1,7 +1,10 @@
-use std::{sync::{atomic::{AtomicUsize, Ordering}, Arc}};
+use std::sync::{
+    atomic::{AtomicUsize, Ordering},
+    Arc,
+};
 
 use async_trait::async_trait;
-use rustic::{Request, Next, Middleware};
+use rustic::{Middleware, Next, Request};
 
 #[derive(Default)]
 struct RequestCounterMiddleware {
@@ -45,4 +48,3 @@ async fn main() -> Result<(), std::io::Error> {
     app.listen("127.0.0.1:8080").await?;
     Ok(())
 }
-

@@ -1,3 +1,3 @@
 mod middlewares;
 
-pub use middlewares::{WithSwagger};
+pub use middlewares::WithSwagger;

@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 rustic = { path = "../../rustic" }
 rustic-swagger = { path = "../../rustic-swagger" }
+rustic-sqlx = { path = "../../rustic-sqlx" }
 async-std = { version = "1.12.0", features = ["attributes"] }
 serde = "1.0.117"
 femme = "2.1.1"

@@ -28,7 +28,7 @@ impl Endpoint for ServeFile {
                 res.set_body(body);
 
                 Ok(res)
-            },
+            }
             Err(e) if e.kind() == io::ErrorKind::NotFound => {
                 warn!("File not found: {:?}", &self.path);
                 Ok(Response::new(StatusCode::NotFound))

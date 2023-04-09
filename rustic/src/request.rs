@@ -1,4 +1,4 @@
-use http_types::{Cookie, Url, Method, format_err};
+use http_types::{format_err, Cookie, Method, Url};
 use routefinder::Captures;
 
 use crate::middlewares::CookieData;
@@ -13,10 +13,7 @@ impl Request {
         req: http_types::Request,
         route_params: Vec<Captures<'static, 'static>>,
     ) -> Self {
-        Self {
-            req,
-            route_params,
-        }
+        Self { req, route_params }
     }
 
     pub fn header(

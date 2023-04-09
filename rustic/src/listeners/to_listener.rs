@@ -1,4 +1,4 @@
-use super::{Listener, tcp_listener::TcpListener, parsed_listener::ParsedListener};
+use super::{parsed_listener::ParsedListener, tcp_listener::TcpListener, Listener};
 use async_std::io;
 use http_types::Url;
 use std::net::ToSocketAddrs;

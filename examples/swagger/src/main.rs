@@ -1,17 +1,16 @@
 use std::env;
 
-use rustic_swagger::WithSwagger;
+use dotenv::dotenv;
 use rustic::WithLogging;
-use sqlx::{SqlitePool};
+use rustic_swagger::WithSwagger;
+use sqlx::SqlitePool;
 use utoipa::{
     openapi::security::{ApiKey, ApiKeyValue, SecurityScheme},
     Modify, OpenApi,
 };
-use dotenv::dotenv;
 
 #[async_std::main]
 async fn main() -> std::io::Result<()> {
-
     femme::start();
     dotenv().ok();
 
@@ -45,7 +44,9 @@ async fn main() -> std::io::Result<()> {
         }
     }
 
-    let pool = SqlitePool::connect(&env::var("DATABASE_URL").unwrap()).await.unwrap();
+    let pool = SqlitePool::connect(&env::var("DATABASE_URL").unwrap())
+        .await
+        .unwrap();
 
     sqlx::migrate!("./migrations").run(&pool).await.unwrap();
 
@@ -66,10 +67,10 @@ mod todo {
     use std::env;
 
     use http_types::StatusCode;
-    use serde::{Deserialize, Serialize};
     use rustic::{Request, Response};
+    use serde::{Deserialize, Serialize};
     use serde_json::json;
-    use sqlx::{SqlitePool, Row};
+    use sqlx::{Row, SqlitePool};
     use utoipa::ToSchema;
 
     /// Item to complete
@@ -118,8 +119,8 @@ mod todo {
         for rec in recs {
             todos.push(Todo {
                 id: rec.get("id"),
-                value: rec.get("value"),
-                done: rec.get("done")
+                value: rec.get("description"),
+                done: rec.get("done"),
             });
         }
 

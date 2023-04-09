@@ -1,4 +1,4 @@
-use rustic::{Request, Response, StatusCode, Cookie};
+use rustic::{Cookie, Request, Response, StatusCode};
 
 async fn retrieve_cookie(req: Request) -> rustic::Result<String> {
     Ok(format!("hello cookies: {:?}", req.cookie("hello").unwrap()))

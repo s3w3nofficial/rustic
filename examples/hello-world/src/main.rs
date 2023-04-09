@@ -1,5 +1,5 @@
+use rustic::{Body, Error, Request, WithLogging};
 use serde::{Deserialize, Serialize};
-use rustic::{Body, Request, Error, WithLogging};
 
 #[derive(Deserialize, Serialize)]
 struct Cat {
@@ -15,7 +15,7 @@ async fn main() -> Result<(), std::io::Error> {
     app.with_logging();
 
     app.at("/").get(|_| async { Ok("Hello, world!") });
-    app.at("/posts/:id").get(|req: Request| async move { 
+    app.at("/posts/:id").get(|req: Request| async move {
         let post_id = req.param("id")?.parse().unwrap_or(0);
         Ok(format!("post id: {}", post_id))
     });

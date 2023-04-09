@@ -3,7 +3,14 @@ use std::sync::Arc;
 use async_std::io;
 use kv_log_macro::info;
 
-use crate::{listeners::{Listener, to_listener::ToListener}, route::Route, router::{Router, Selection}, request::Request, middleware::{Next, Middleware}, middlewares};
+use crate::{
+    listeners::{to_listener::ToListener, Listener},
+    middleware::{Middleware, Next},
+    middlewares,
+    request::Request,
+    route::Route,
+    router::{Router, Selection},
+};
 
 pub struct Server {
     router: Arc<Router>,
@@ -11,14 +18,11 @@ pub struct Server {
 }
 
 impl Server {
-
     #[must_use]
     pub fn new() -> Self {
         Self {
             router: Arc::new(Router::new()),
-            middleware: Arc::new(vec![
-                Arc::new(middlewares::CookieMiddleware::new())
-            ]),
+            middleware: Arc::new(vec![Arc::new(middlewares::CookieMiddleware::new())]),
         }
     }
 
@@ -52,10 +56,7 @@ impl Server {
         Res: From<http_types::Response>,
     {
         let req = req.into();
-        let Self {
-            router,
-            middleware,
-        } = self.clone();
+        let Self { router, middleware } = self.clone();
 
         let method = req.method().to_owned();
         let Selection { endpoint, params } = router.route(req.url().path(), method);

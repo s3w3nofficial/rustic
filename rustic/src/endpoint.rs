@@ -3,11 +3,14 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use futures_core::Future;
 
-use crate::{request::Request, middleware::{Middleware, Next}, response::Response};
+use crate::{
+    middleware::{Middleware, Next},
+    request::Request,
+    response::Response,
+};
 
 #[async_trait]
 pub trait Endpoint: Send + Sync + 'static {
-
     async fn call(&self, req: Request) -> crate::Result;
 }
 

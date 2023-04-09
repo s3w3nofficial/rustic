@@ -1,27 +1,21 @@
-pub use http_types::{Body, Error, Status, StatusCode, Cookie};
+pub use http_types::{Body, Cookie, Error, Status, StatusCode};
 
-mod listeners;
-mod server;
-mod router;
 mod endpoint;
+mod fs;
+mod listeners;
+mod middleware;
+mod middlewares;
 mod request;
 mod response;
-mod middleware;
 mod route;
-mod middlewares;
-mod fs;
+mod router;
+mod server;
 
 pub use endpoint::Endpoint;
 pub use middleware::{Middleware, Next};
 pub use middlewares::{
-    Origin,
-    AuthMiddleware, 
-    CorsMiddleware, 
-    BasicAuthScheme, 
-    BearerAuthScheme, 
-    WithHttpAuth, 
-    WithCors,
-    WithLogging
+    AuthMiddleware, BasicAuthScheme, BearerAuthScheme, CorsMiddleware, Origin, WithCors,
+    WithHttpAuth, WithLogging,
 };
 pub use request::Request;
 pub use response::Response;

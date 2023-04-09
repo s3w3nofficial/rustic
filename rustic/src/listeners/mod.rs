@@ -1,5 +1,5 @@
-mod tcp_listener;
 mod parsed_listener;
+mod tcp_listener;
 pub mod to_listener;
 
 use async_std::io;
@@ -17,7 +17,7 @@ pub trait Listener: Send + 'static {
 #[async_trait]
 impl<L> Listener for Box<L>
 where
-    L: Listener
+    L: Listener,
 {
     async fn bind(&mut self, app: Server) -> io::Result<()> {
         self.as_mut().bind(app).await

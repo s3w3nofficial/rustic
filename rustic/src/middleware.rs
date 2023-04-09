@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use crate::{request::Request, endpoint::DynEndpoint, response::Response};
+use crate::{endpoint::DynEndpoint, request::Request, response::Response};
 
 #[async_trait]
 pub trait Middleware: Send + Sync + 'static {

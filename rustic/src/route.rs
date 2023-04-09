@@ -1,8 +1,13 @@
-use std::{sync::Arc, path::Path, io};
+use std::{io, path::Path, sync::Arc};
 
 use kv_log_macro::info;
 
-use crate::{router::Router, endpoint::{Endpoint, MiddlewareEndpoint}, middleware::Middleware, fs::{ServeDir, ServeFile}};
+use crate::{
+    endpoint::{Endpoint, MiddlewareEndpoint},
+    fs::{ServeDir, ServeFile},
+    middleware::Middleware,
+    router::Router,
+};
 
 pub struct Route<'a> {
     router: &'a mut Router,
@@ -10,12 +15,12 @@ pub struct Route<'a> {
     middleware: Vec<Arc<dyn Middleware>>,
 }
 
-impl <'a> Route<'a> {
+impl<'a> Route<'a> {
     pub(crate) fn new(router: &'a mut Router, path: String) -> Route<'a> {
         Route {
             router,
             path,
-            middleware: Vec::new()
+            middleware: Vec::new(),
         }
     }
 

@@ -1,10 +1,10 @@
-use async_std::net::{SocketAddr, self, TcpStream};
+use async_std::net::{self, SocketAddr, TcpStream};
 use async_std::stream::StreamExt;
 use async_std::{io, task};
 use kv_log_macro::error;
 
+use super::{is_transient_error, Listener};
 use crate::server::Server;
-use super::{Listener, is_transient_error};
 
 pub struct TcpListener {
     addrs: Option<Vec<SocketAddr>>,
@@ -42,7 +42,6 @@ fn handle_tcp(app: Server, stream: TcpStream) {
 #[async_trait::async_trait]
 impl Listener for TcpListener {
     async fn bind(&mut self, server: Server) -> io::Result<()> {
-
         self.server = Some(server);
 
         if self.listener.is_none() {
@@ -58,7 +57,6 @@ impl Listener for TcpListener {
     }
 
     async fn accept(&mut self) -> io::Result<()> {
-
         let server = self
             .server
             .take()

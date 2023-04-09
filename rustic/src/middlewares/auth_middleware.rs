@@ -1,10 +1,10 @@
 use std::any::Any;
 
-use http_types::{Result, StatusCode};
 use async_trait::async_trait;
-use kv_log_macro::{info, error};
+use http_types::{Result, StatusCode};
+use kv_log_macro::{error, info};
 
-use crate::{Middleware, Request, Next, Response, Server};
+use crate::{Middleware, Next, Request, Response, Server};
 
 pub struct AuthMiddleware<ImplScheme: Scheme> {
     pub(crate) scheme: ImplScheme,
@@ -12,26 +12,29 @@ pub struct AuthMiddleware<ImplScheme: Scheme> {
 
 impl<ImplScheme: Scheme> AuthMiddleware<ImplScheme> {
     pub fn new(scheme: ImplScheme) -> Self {
-        Self {
-            scheme
-        }
+        Self { scheme }
     }
 }
 
 pub trait WithHttpAuth {
-    fn with_basic_auth(&mut self, verify_password: fn(username: &str, password: &str) -> bool) -> &mut Self;
+    fn with_basic_auth(
+        &mut self,
+        verify_password: fn(username: &str, password: &str) -> bool,
+    ) -> &mut Self;
 
-    fn with_token_auth(&mut self, verify_token: fn (token: &str) -> bool) -> &mut Self;
+    fn with_token_auth(&mut self, verify_token: fn(token: &str) -> bool) -> &mut Self;
 }
 
 impl WithHttpAuth for Server {
-
-    fn with_basic_auth(&mut self, verify_password: fn(username: &str, password: &str) -> bool) -> &mut Self {
+    fn with_basic_auth(
+        &mut self,
+        verify_password: fn(username: &str, password: &str) -> bool,
+    ) -> &mut Self {
         self.with(AuthMiddleware::new(BasicAuthScheme::new(verify_password)));
         self
     }
 
-    fn with_token_auth(&mut self, verify_token: fn (token: &str) -> bool) -> &mut Self {
+    fn with_token_auth(&mut self, verify_token: fn(token: &str) -> bool) -> &mut Self {
         self.with(AuthMiddleware::new(BearerAuthScheme::new(verify_token)));
         self
     }
@@ -55,7 +58,6 @@ where
     ImplScheme: Scheme + Send + Sync + 'static,
 {
     async fn handle(&self, req: Request, next: Next<'_>) -> crate::Result {
-
         let auth_header = req.header(ImplScheme::header_name());
         if auth_header.is_none() {
             info!("no auth header, proceeding");
@@ -84,10 +86,10 @@ where
 
             return match self.scheme.authenticate(auth_param).await? {
                 Some(_bool) => Ok(next.run(req).await),
-                _ => return Ok(get_basic_auth_forbiden_response())
+                _ => return Ok(get_basic_auth_forbiden_response()),
             };
         }
-        
+
         Ok(get_basic_auth_unuathorized_response())
     }
 }
@@ -118,10 +120,9 @@ pub struct BasicAuthScheme {
 }
 
 impl BasicAuthScheme {
-
     pub fn new(verify_password: fn(username: &str, password: &str) -> bool) -> Self {
         Self {
-            verify_password: verify_password
+            verify_password: verify_password,
         }
     }
 }
@@ -136,7 +137,6 @@ impl Scheme for BasicAuthScheme {
     type Request = BasicAuthRequest;
 
     async fn authenticate(&self, auth_param: &str) -> Result<Option<bool>> {
-
         let bytes = base64::decode(auth_param);
         if bytes.is_err() {
             // This is invalid. Fail the request.
@@ -160,8 +160,8 @@ impl Scheme for BasicAuthScheme {
 
         if parts.len() < 2 {
             return Err(http_types::Error::from_str(
-                StatusCode::Unauthorized, 
-                "Basic auth must contain both username and password"
+                StatusCode::Unauthorized,
+                "Basic auth must contain both username and password",
             ));
         }
 
@@ -172,8 +172,8 @@ impl Scheme for BasicAuthScheme {
         }
 
         return Err(http_types::Error::from_str(
-            StatusCode::Unauthorized, 
-            "username and password doesn't match"
+            StatusCode::Unauthorized,
+            "username and password doesn't match",
         ));
     }
 
@@ -187,10 +187,9 @@ pub struct BearerAuthScheme {
 }
 
 impl BearerAuthScheme {
-
     pub fn new(verify_token: fn(token: &str) -> bool) -> Self {
         Self {
-            verify_token: verify_token 
+            verify_token: verify_token,
         }
     }
 }
@@ -227,8 +226,8 @@ impl Scheme for BearerAuthScheme {
 
         if parts.len() < 1 {
             return Err(http_types::Error::from_str(
-                StatusCode::Unauthorized, 
-                "Bearer auth must contain token"
+                StatusCode::Unauthorized,
+                "Bearer auth must contain token",
             ));
         }
 
@@ -239,8 +238,8 @@ impl Scheme for BearerAuthScheme {
         }
 
         return Err(http_types::Error::from_str(
-            StatusCode::Unauthorized, 
-            "token is expired or invalid"
+            StatusCode::Unauthorized,
+            "token is expired or invalid",
         ));
     }
 

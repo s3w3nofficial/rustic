@@ -1,16 +1,19 @@
-use std::sync::Arc;
+use std::env;
 
 use rustic_swagger::WithSwagger;
-use rustic::{WithLogging};
+use rustic::WithLogging;
+use sqlx::{SqlitePool};
 use utoipa::{
     openapi::security::{ApiKey, ApiKeyValue, SecurityScheme},
     Modify, OpenApi,
 };
+use dotenv::dotenv;
 
 #[async_std::main]
 async fn main() -> std::io::Result<()> {
 
     femme::start();
+    dotenv().ok();
 
     #[derive(OpenApi)]
     #[openapi(
@@ -42,6 +45,10 @@ async fn main() -> std::io::Result<()> {
         }
     }
 
+    let pool = SqlitePool::connect(&env::var("DATABASE_URL").unwrap()).await.unwrap();
+
+    sqlx::migrate!("./migrations").run(&pool).await.unwrap();
+
     let mut app = rustic::new();
 
     app.with_logging();
@@ -56,11 +63,13 @@ async fn main() -> std::io::Result<()> {
 }
 
 mod todo {
-    use std::sync::{Arc, Mutex};
+    use std::env;
 
     use http_types::StatusCode;
     use serde::{Deserialize, Serialize};
     use rustic::{Request, Response};
+    use serde_json::json;
+    use sqlx::{SqlitePool, Row};
     use utoipa::ToSchema;
 
     /// Item to complete
@@ -85,8 +94,6 @@ mod todo {
         NotFound(String),
     }
 
-    pub(super) type Store = Arc<Mutex<Vec<Todo>>>;
-
     /// List todos from in-memory storage.
     ///
     /// List all todos from in memory storage.
@@ -97,11 +104,27 @@ mod todo {
             (status = 200, description = "List all todos successfully", body = [Todo])
         )
     )]
-    pub(super) async fn list_todos(req: Request) -> rustic::Result<Response> {
-        let todos = Store::default();
+    pub(super) async fn list_todos(_req: Request) -> rustic::Result<Response> {
+        let pool = SqlitePool::connect(&env::var("DATABASE_URL")?).await?;
+
+        sqlx::migrate!("./migrations").run(&pool).await.unwrap();
+
+        let recs = sqlx::query("SELECT id, description, done FROM todo ORDER BY id")
+            .fetch_all(&pool)
+            .await?;
+
+        let mut todos = Vec::new();
+
+        for rec in recs {
+            todos.push(Todo {
+                id: rec.get("id"),
+                value: rec.get("value"),
+                done: rec.get("done")
+            });
+        }
 
         let mut response = Response::new(StatusCode::Ok);
-        //response.set_body(json!(todos));
+        response.set_body(json!(todos));
 
         Ok(response)
     }
@@ -120,25 +143,21 @@ mod todo {
     )]
     pub(super) async fn create_todo(mut req: Request) -> rustic::Result<Response> {
         let new_todo = req.body_json::<Todo>().await?;
-        let mut todos = Store::default();
 
-        /*
-        todos
-            .iter()
-            .find(|existing| existing.id == new_todo.id)
-            .map(|existing| {
-                Ok(Response::builder(409)
-                    .body(json!(TodoError::Config(format!("id = {}", existing.id))))
-                    .build())
-            })
-            .unwrap_or_else(|| {
-                todos.push(new_todo.clone());
+        let pool = SqlitePool::connect(&env::var("DATABASE_URL")?).await?;
 
-                Ok(Response::builder(200).body(json!(new_todo)).build())
-            })
-        */
+        sqlx::migrate!("./migrations").run(&pool).await.unwrap();
 
-        Ok(Response::new(StatusCode::Ok))
+        let query = "INSERT INTO todo (id, description, done) VALUES ($1, $2, $3)";
+
+        sqlx::query(query)
+            .bind(&new_todo.id)
+            .bind(&new_todo.value)
+            .bind(&new_todo.done)
+            .execute(&pool)
+            .await?;
+
+        Ok(Response::new(StatusCode::Created))
     }
 
     /// Delete todo by id.
@@ -170,23 +189,17 @@ mod todo {
             return Ok(Response::new(401));
         }
 
-        let mut todos = Store::default();
+        let pool = SqlitePool::connect(&env::var("DATABASE_URL")?).await?;
 
-        /*
-        let old_size = todos.len();
+        sqlx::migrate!("./migrations").run(&pool).await.unwrap();
 
-        todos.retain(|todo| todo.id != id);
+        sqlx::query("DELETE FROM todo WHERE id = $id")
+            .bind(id)
+            .execute(&pool)
+            .await?;
 
-        if old_size == todos.len() {
-            Ok(Response::builder(404)
-                .body(json!(TodoError::NotFound(format!("id = {id}"))))
-                .build())
-        } else {
-            Ok(Response::new(200))
-        }
-        */
-
-        Ok(Response::new(200))
+        let response = Response::new(StatusCode::NoContent);
+        Ok(response)
     }
 
     /// Mark todo done by id
@@ -203,23 +216,17 @@ mod todo {
     )]
     pub(super) async fn mark_done(req: Request) -> rustic::Result<Response> {
         let id = req.param("id")?.parse::<i32>()?;
-        let mut todos = Store::default();
 
-        /*
-        todos
-            .iter_mut()
-            .find(|todo| todo.id == id)
-            .map(|todo| {
-                todo.done = true;
-                Ok(Response::new(200))
-            })
-            .unwrap_or_else(|| {
-                Ok(Response::builder(404)
-                    .body(json!(TodoError::NotFound(format!("id = {id}"))))
-                    .build())
-            })
-        */
+        let pool = SqlitePool::connect(&env::var("DATABASE_URL")?).await?;
 
-        Ok(Response::new(200))
+        sqlx::migrate!("./migrations").run(&pool).await.unwrap();
+
+        sqlx::query("UPDATE todo SET done = 1 WHERE id = $id")
+            .bind(id)
+            .execute(&pool)
+            .await?;
+
+        let response = Response::new(StatusCode::NoContent);
+        Ok(response)
     }
 }

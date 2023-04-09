@@ -3,7 +3,7 @@ use http_types::{
     Body, 
     StatusCode, 
     Cookie, 
-    headers::{HeaderName, ToHeaderValues}
+    headers::{HeaderName, ToHeaderValues}, Mime
 };
 use std::fmt::{Debug};
 
@@ -39,6 +39,10 @@ impl Response {
 
     pub fn append_header(&mut self, key: impl Into<HeaderName>, value: impl ToHeaderValues) {
         self.res.append_header(key, value);
+    }
+
+    pub fn set_content_type(&mut self, mime: impl Into<Mime>) {
+        self.res.set_content_type(mime.into());
     }
 
     pub fn set_body(&mut self, body: impl Into<Body>) {

@@ -8,10 +8,10 @@
 - custom middleware support
 - cors middleware
 - logging middleware
+- swagger support (utopia)
 
 ### TODO
 - session support
-- swagger support (utopia)
 - cache middleware
 - asp net like filters
 - stongly typed endpoints (fast endpoints)

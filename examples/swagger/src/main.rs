@@ -2,6 +2,7 @@ use std::env;
 
 use dotenv::dotenv;
 use rustic::WithLogging;
+use rustic_sqlx::WithSQLx;
 use rustic_swagger::WithSwagger;
 use sqlx::SqlitePool;
 use utoipa::{
@@ -53,6 +54,7 @@ async fn main() -> std::io::Result<()> {
     let mut app = rustic::new();
 
     app.with_logging();
+    app.with_sqlx();
     app.with_swagger(ApiDoc::openapi());
 
     app.at("api/todo").get(todo::list_todos);

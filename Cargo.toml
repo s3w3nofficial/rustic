@@ -1,5 +1,5 @@
 [workspace]
-members = ["rustic", "examples/*"]
+members = ["rustic", "rustic-*", "examples/*"]
 # Only check / build main crates by default (check all with `--workspace`)
-default-members = ["rustic", "rustic-*"]
+default-members = ["rustic"]
 resolver = "2"

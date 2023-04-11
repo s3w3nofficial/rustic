@@ -24,6 +24,8 @@ pub use route::Route;
 pub use redirect::Redirect;
 pub use server::Server;
 
+pub use http_types;
+
 #[must_use]
 pub fn new() -> Server {
     Server::new()

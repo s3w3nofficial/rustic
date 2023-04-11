@@ -9,6 +9,7 @@ mod request;
 mod response;
 mod route;
 mod router;
+mod redirect;
 mod server;
 
 pub use endpoint::Endpoint;
@@ -20,6 +21,7 @@ pub use middlewares::{
 pub use request::Request;
 pub use response::Response;
 pub use route::Route;
+pub use redirect::Redirect;
 pub use server::Server;
 
 #[must_use]

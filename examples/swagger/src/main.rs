@@ -1,10 +1,10 @@
 use std::env;
 
 use dotenv::dotenv;
-use rustic::WithLogging;
+use rustic::{WithLogging, Redirect};
 use rustic_sqlx::WithSQLx;
 use rustic_swagger::WithSwagger;
-use sqlx::SqlitePool;
+use sqlx::{SqlitePool, Sqlite};
 use utoipa::{
     openapi::security::{ApiKey, ApiKeyValue, SecurityScheme},
     Modify, OpenApi,
@@ -54,8 +54,10 @@ async fn main() -> std::io::Result<()> {
     let mut app = rustic::new();
 
     app.with_logging();
-    app.with_sqlx();
+    app.with_sqlx::<Sqlite>(&env::var("DATABASE_URL").unwrap()).await;
     app.with_swagger(ApiDoc::openapi());
+
+    app.at("youtube").get(Redirect::new("https://www.youtube.com/watch?v=dQw4w9WgXcQ"));
 
     app.at("api/todo").get(todo::list_todos);
     app.at("api/todo").post(todo::create_todo);

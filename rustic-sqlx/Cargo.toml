@@ -9,4 +9,4 @@ edition = "2021"
 rustic = { path = "../rustic" }
 async-std = { version = "1.12.0", features = ["attributes"] }
 async-trait = "0.1.41"
-sqlx = { version = "0.6", features = [ "sqlite", "runtime-async-std-native-tls" ] }
+sqlx = { version = "0.6", features = [ "postgres", "sqlite", "runtime-async-std-native-tls" ] }

@@ -67,6 +67,16 @@ impl<'a> Route<'a> {
         self
     }
 
+    pub fn head(&mut self, ep: impl Endpoint) -> &mut Self {
+        self.method(http_types::Method::Head, ep);
+        self
+    }
+
+    pub fn options(&mut self, ep: impl Endpoint) -> &mut Self {
+        self.method(http_types::Method::Options, ep);
+        self
+    }
+
     pub fn get(&mut self, ep: impl Endpoint) -> &mut Self {
         self.method(http_types::Method::Get, ep);
         self
@@ -79,6 +89,11 @@ impl<'a> Route<'a> {
 
     pub fn put(&mut self, ep: impl Endpoint) -> &mut Self {
         self.method(http_types::Method::Put, ep);
+        self
+    }
+
+    pub fn patch(&mut self, ep: impl Endpoint) -> &mut Self {
+        self.method(http_types::Method::Patch, ep);
         self
     }
 

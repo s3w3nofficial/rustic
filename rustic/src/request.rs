@@ -58,4 +58,8 @@ impl Request {
         self.ext::<CookieData>()
             .and_then(|cookie_data| cookie_data.content.read().unwrap().get(name).cloned())
     }
+
+    pub fn get_underlying_request(&self) -> http_types::Request {
+        self.req.clone()
+    }
 }

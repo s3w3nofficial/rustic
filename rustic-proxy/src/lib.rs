@@ -3,6 +3,10 @@ use rustic::http_types::{Request};
 use rustic::http_types;
 use rustic::{Route};
 
+mod shared_data;
+
+pub use shared_data::{SharedData};
+
 #[async_trait]
 pub trait Proxy {
     async fn proxy_to(&mut self, url: &str) -> &mut Self;

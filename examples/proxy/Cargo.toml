@@ -10,3 +10,6 @@ rustic = { path = "../../rustic" }
 rustic-proxy = { path = "../../rustic-proxy" }
 async-std = { version = "1.12.0", features = ["attributes"] }
 femme = "2.1.1"
+num_cpus = "1.15.0"
+futures = "0.3.28"
+libc = "0.2.141"

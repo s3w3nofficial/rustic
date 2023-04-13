@@ -1,3 +1,5 @@
+use std::os::fd::AsRawFd;
+
 use async_std::net::{self, SocketAddr, TcpStream};
 use async_std::stream::StreamExt;
 use async_std::{io, task};
@@ -49,7 +51,26 @@ impl Listener for TcpListener {
                 .addrs
                 .take()
                 .expect("`bind` should only be called once");
+
             let listener = net::TcpListener::bind(addrs.as_slice()).await?;
+            let raw_fd = listener.as_raw_fd();
+
+            let optval: libc::c_int = 1;
+            unsafe {
+                libc::setsockopt(raw_fd, libc::SOL_SOCKET, libc::SO_REUSEADDR, &optval as *const _ as *const _, std::mem::size_of_val(&optval) as u32);
+            }
+
+            // unsafe {
+            //     let optval: libc::c_int = 1;
+            //     libc::setsockopt(
+            //         raw_fd,
+            //         libc::SOL_SOCKET,
+            //         libc::SO_REUSEADDR,
+            //         &optval as *const _ as *const libc::c_void,
+            //         std::mem::size_of_val(&optval) as libc::socklen_t,
+            //     );
+            // }
+
             self.listener = Some(listener);
         }
 

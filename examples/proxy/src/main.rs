@@ -1,53 +1,10 @@
-// use std::{collections::HashMap, sync::Arc};
-// use async_std::task;
-// use rustic_proxy::SharedData;
-
-// // use num_cpus;
-
-// #[async_std::main]
-// async fn main() -> Result<(), std::io::Error> {
-//     //let cpu_count = num_cpus::get(); // Get the number of available CPUs
-//     let cpu_count = 2;
-//     let mut tasks = Vec::with_capacity(cpu_count); // Create a vector to hold the threads
-
-//     let data = Arc::new(SharedData::new());
-
-//     let mut d = HashMap::<String, String>::new();
-//     d.insert(String::from("/abcd"), String::from("http://localhost:8002"));
-
-//     data.write(d);
-    
-//     // Spawn a thread for each CPU
-//     for i in 0..cpu_count {
-//         let data = data.clone();
-//         let i = i.clone();
-//         let task = task::spawn(async move {
-
-//             let app = rustic::new();
-
-//             println!("Thread {} running", i);
-//             for (source, destination) in data.read() {
-//                 println!("source: {} -> destination: {}", source, destination);
-//             }
-
-//             app.listen("127.0.0.1:8080").await.unwrap();
-//         });
-//         tasks.push(task);
-//     }
-
-//     // Wait for all threads to finish
-//     futures::future::join_all(tasks).await;
-
-//     Ok(())
-// }
-
 use async_std::net::{TcpListener, TcpStream};
 use async_std::prelude::*;
 use async_std::task;
 use libc::{c_int, setsockopt, SOL_SOCKET, SO_REUSEADDR, SO_REUSEPORT, sockaddr_in, bind, listen};
 use std::mem;
 use std::os::fd::FromRawFd;
-use std::os::unix::io::{AsRawFd, RawFd};
+use std::os::unix::io::{AsRawFd};
 
 async fn handle_client(stream: TcpStream) -> std::io::Result<()> {
     // Handle the client connection
@@ -91,9 +48,10 @@ async fn create_listener(port: u16) -> std::io::Result<TcpListener> {
     }
 
     let mut serv_addr: sockaddr_in = unsafe { mem::zeroed() };
-    serv_addr.sin_family = libc::AF_INET as u16;
-    serv_addr.sin_port = socket::htons(port);
-    serv_addr.sin_addr.s_addr = socket::htonl(libc::INADDR_ANY as u32);
+    //serv_addr.sin_family = libc::AF_INET as u16;
+    serv_addr.sin_family = 2;
+    serv_addr.sin_port = htons(port);
+    serv_addr.sin_addr.s_addr = htonl(libc::INADDR_ANY as u32);
 
     let optval: c_int = 1;
     unsafe {
@@ -118,14 +76,14 @@ async fn create_listener(port: u16) -> std::io::Result<TcpListener> {
     Ok(listener)
 }
 
-fn set_reuseaddr(listener: &TcpListener) -> std::io::Result<()> {
-    let fd = listener.as_raw_fd();
-    let optval: c_int = 1;
-    unsafe {
-        setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &optval as *const _ as *const _, std::mem::size_of_val(&optval) as u32);
-        setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &optval as *const _ as *const _, std::mem::size_of_val(&optval) as u32);
-    }
-    Ok(())
+#[inline]
+pub fn htons(hostshort: u16) -> u16 {
+    hostshort.to_be()
+}
+
+#[inline]
+pub fn htonl(hostlong: u32) -> u32 {
+    hostlong.to_be()
 }
 
 #[async_std::main]

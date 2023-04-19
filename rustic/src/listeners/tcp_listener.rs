@@ -1,9 +1,10 @@
-use std::os::fd::AsRawFd;
+use std::mem;
+use std::os::fd::FromRawFd;
 
 use async_std::net::{self, SocketAddr, TcpStream};
 use async_std::stream::StreamExt;
 use async_std::{io, task};
-use kv_log_macro::error;
+use kv_log_macro::{error, info, debug};
 
 use super::{is_transient_error, Listener};
 use crate::server::Server;
@@ -52,24 +53,40 @@ impl Listener for TcpListener {
                 .take()
                 .expect("`bind` should only be called once");
 
-            let listener = net::TcpListener::bind(addrs.as_slice()).await?;
-            let raw_fd = listener.as_raw_fd();
+            let sockfd = unsafe { libc::socket(libc::AF_INET, libc::SOCK_STREAM, 0) };
+            if sockfd == -1 {
+                panic!("Error creating socket");
+            }
+
+            let port = 8080;
+
+            let mut serv_addr: libc::sockaddr_in = unsafe { std::mem::zeroed() };
+            //serv_addr.sin_family = libc::AF_INET as u16;
+            serv_addr.sin_family = 2;
+            serv_addr.sin_port = htons(port);
+            serv_addr.sin_addr.s_addr = htonl(libc::INADDR_ANY as u32);
 
             let optval: libc::c_int = 1;
             unsafe {
-                libc::setsockopt(raw_fd, libc::SOL_SOCKET, libc::SO_REUSEADDR, &optval as *const _ as *const _, std::mem::size_of_val(&optval) as u32);
+                libc::setsockopt(sockfd, libc::SOL_SOCKET, libc::SO_REUSEADDR, &optval as *const _ as *const _, std::mem::size_of_val(&optval) as u32);
+                libc::setsockopt(sockfd, libc::SOL_SOCKET, libc::SO_REUSEPORT, &optval as *const _ as *const _, std::mem::size_of_val(&optval) as u32);
             }
 
-            // unsafe {
-            //     let optval: libc::c_int = 1;
-            //     libc::setsockopt(
-            //         raw_fd,
-            //         libc::SOL_SOCKET,
-            //         libc::SO_REUSEADDR,
-            //         &optval as *const _ as *const libc::c_void,
-            //         std::mem::size_of_val(&optval) as libc::socklen_t,
-            //     );
-            // }
+            let status = unsafe { libc::bind(sockfd, &serv_addr as *const _ as *const _, mem::size_of_val(&serv_addr) as u32) };
+            if status == -1 {
+                panic!("Error binding socket to address");
+            }
+
+            let status = unsafe { libc::listen(sockfd, 5) };
+            if status == -1 {
+                panic!("Error listening for incoming connections");
+            }
+
+            info!("Startint tcp listener on socket: {}", sockfd);
+            println!("Startint tcp listener on socket: {}", sockfd);
+
+            //let listener = net::TcpListener::bind(addrs.as_slice()).await?;
+            let listener = unsafe { net::TcpListener::from_raw_fd(sockfd) };
 
             self.listener = Some(listener);
         }
@@ -108,4 +125,14 @@ impl Listener for TcpListener {
 
         Ok(())
     }
+}
+
+#[inline]
+fn htons(hostshort: u16) -> u16 {
+    hostshort.to_be()
+}
+
+#[inline]
+fn htonl(hostlong: u32) -> u32 {
+    hostlong.to_be()
 }

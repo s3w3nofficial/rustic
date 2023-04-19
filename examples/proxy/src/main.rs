@@ -6,6 +6,7 @@ use std::mem;
 use std::os::fd::FromRawFd;
 use std::os::unix::io::{AsRawFd};
 
+/*
 async fn handle_client(stream: TcpStream) -> std::io::Result<()> {
     // Handle the client connection
     println!("{}", stream.peer_addr().unwrap());
@@ -85,9 +86,11 @@ pub fn htons(hostshort: u16) -> u16 {
 pub fn htonl(hostlong: u32) -> u32 {
     hostlong.to_be()
 }
+*/
 
 #[async_std::main]
 async fn main() -> Result<(), std::io::Error> {
+    /*
     let port = 8080;
 
     let mut tasks = Vec::with_capacity(2);
@@ -99,6 +102,22 @@ async fn main() -> Result<(), std::io::Error> {
     tasks.push(task2);
 
     futures::future::join_all(tasks).await;
+    */
+
+    let mut tasks = Vec::with_capacity(2);
+    let mut task1 = rustic::new();
+    task1.at("/task1").get(|_| async { Ok("task 1!") });
+    let task1_l = task1.listen("127.0.0.1:8080");
+    let mut task2 = rustic::new();
+    task2.at("/task2").get(|_| async { Ok("task 2!") });
+    let task2_l = task2.listen("127.0.0.1:8080");
+
+    tasks.push(task1_l);
+    tasks.push(task2_l);
+
+    futures::future::join_all(tasks).await;
+
+    //let mut app = rustic::new():
 
     Ok(())
 }
